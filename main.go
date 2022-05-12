@@ -21,7 +21,9 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/andrejacobs/ajtweet-cli/cmd"
+import (
+	"github.com/andrejacobs/ajtweet-cli/cmd"
+)
 
 func main() {
 	cmd.Execute()
