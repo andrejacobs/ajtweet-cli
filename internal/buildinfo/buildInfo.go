@@ -8,5 +8,9 @@ var (
 )
 
 func VersionString() string {
-	return fmt.Sprintf("%s %s", Version, GitCommitHash)
+	version := "v0.0.0"
+	if Version != "" {
+		version = Version
+	}
+	return fmt.Sprintf("%s %s", version, GitCommitHash)
 }
