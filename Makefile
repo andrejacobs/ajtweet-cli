@@ -83,9 +83,12 @@ check-format:
 	@echo "Checking formatting"
 	@test -z $(shell gofmt -e -l ./ | tee /dev/stderr) || (echo "Please fix formatting first with gofmt" && exit 1)
 
+# Check for other possible issues in the code
 .PHONY: check-lint
 check-lint:
 	@echo "Linting code"
+	go vet ./...
+#NOTE: staticcheck is run as a github action and not as part of this Makefile
 
 .PHONY: check
 check: check-format check-lint

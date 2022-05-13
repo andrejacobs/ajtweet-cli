@@ -25,6 +25,10 @@ jobs:
     - name: Checking formatting and linting code
       run: make check
 
+    - uses: dominikh/staticcheck-action@latest
+	    with:
+  	    install-go: false
+
     - name: Build for all supported platforms
       run: make buildall
       
