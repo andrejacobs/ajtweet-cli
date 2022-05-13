@@ -11,7 +11,7 @@ all: clean info build test
 .PHONY: deps
 deps:
 	@echo "Fetching dependencies"
-	go get -u github.com/spf13/cobra@latest
+	go mod tidy -v
 
 # Run unit-tests
 .PHONY: test
@@ -43,7 +43,6 @@ build-linux: versioninfo
 	@echo "Building for Linux"
 	GOOS=linux GOARCH=arm64 go build -ldflags "${GO_LDFLAGS}" -o ${BUILD_OUTPUT_DIR}/Linux/arm64/${EXECUTABLE_BASE_NAME} main.go
 	GOOS=linux GOARCH=amd64 go build -ldflags "${GO_LDFLAGS}" -o ${BUILD_OUTPUT_DIR}/Linux/amd64/${EXECUTABLE_BASE_NAME} main.go
-
 
 # Build and run
 .PHONY: run
@@ -77,3 +76,19 @@ info: versioninfo
 	@echo "GIT_COMMIT_HASH: ${GIT_COMMIT_HASH}"
 	@echo "GIT_TAG: ${GIT_TAG}"
 	@echo "GO_LDFLAGS: ${GO_LDFLAGS}"
+
+# Check that the source code is formatted correctly according to the gofmt standards
+.PHONY: check-format
+check-format:
+	@echo "Checking formatting"
+	@test -z $(shell gofmt -e -l ./ | tee /dev/stderr) || (echo "Please fix formatting first with gofmt" && exit 1)
+
+# Check for other possible issues in the code
+.PHONY: check-lint
+check-lint:
+	@echo "Linting code"
+	go vet ./...
+#NOTE: staticcheck is run as a github action and not as part of this Makefile
+
+.PHONY: check
+check: check-format check-lint
