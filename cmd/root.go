@@ -22,11 +22,11 @@ THE SOFTWARE.
 package cmd
 
 import (
-"fmt"
+	"fmt"
 	"os"
 
 	"github.com/andrejacobs/ajtweet-cli/internal/buildinfo"
-"github.com/spf13/cobra"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
