@@ -22,14 +22,9 @@ THE SOFTWARE.
 package main
 
 import (
-	"fmt"
-
 	"github.com/andrejacobs/ajtweet-cli/cmd"
 )
 
 func main() {
 	cmd.Execute()
-
-	intVar := 3
-	fmt.Printf("Failed here! %s\n", intVar)
 }
