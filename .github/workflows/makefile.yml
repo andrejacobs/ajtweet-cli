@@ -22,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: make deps
       
-    - name: Checking formatting and linting code
-      run: make check
+    # - name: Checking formatting and linting code
+    #   run: make check
 
     - uses: dominikh/staticcheck-action@v1.2.0
       with:
