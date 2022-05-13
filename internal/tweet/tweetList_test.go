@@ -3,6 +3,7 @@ package tweet
 import (
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -10,7 +11,7 @@ import (
 func TestAdd(t *testing.T) {
 	list := TweetList{}
 
-	if len(list.tweets) != 0 {
+	if len(list.Tweets) != 0 {
 		t.Fatal("TweetList must be empty on initialization")
 	}
 
@@ -24,15 +25,15 @@ func TestAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(list.tweets) != 2 {
+	if len(list.Tweets) != 2 {
 		t.Fatal("Expected 2 tweets to be added")
 	}
 
-	if list.tweets[0] != tw1 {
+	if list.Tweets[0] != tw1 {
 		t.Fatalf("Expected tweet Id %q at index 0", tw1.Id)
 	}
 
-	if list.tweets[1] != tw2 {
+	if list.Tweets[1] != tw2 {
 		t.Fatalf("Expected tweet Id %q at index 1", tw2.Id)
 	}
 
@@ -76,4 +77,45 @@ func TestFind(t *testing.T) {
 		t.Fatalf("Tweet should have been found in the list at index 1. Result: %t, %d", found, index)
 	}
 
+}
+
+func TestSaveLoad(t *testing.T) {
+	l1 := TweetList{}
+	l2 := TweetList{}
+
+	l1.Add(New("Tweet1", time.Now()))
+	tempFile, err := os.CreateTemp("", "")
+	if err != nil {
+		t.Fatalf("Error creating temp file: %s", err)
+
+	}
+	defer os.Remove(tempFile.Name())
+
+	if err := l1.Save(tempFile.Name()); err != nil {
+		t.Fatalf("Error saving list to file: %s", err)
+	}
+
+	if err := l2.Load(tempFile.Name()); err != nil {
+		t.Fatalf("Error getting list from file: %s", err)
+	}
+
+	if l1.Tweets[0].Id != l2.Tweets[0].Id {
+		t.Errorf("Tweet %q should match %q.", l1.Tweets[0], l2.Tweets[0])
+	}
+}
+
+func TestLoadNoFile(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "")
+	if err != nil {
+		t.Fatalf("Error creating temp file: %s", err)
+	}
+
+	if err := os.Remove(tempFile.Name()); err != nil {
+		t.Fatalf("Error deleting temp file: %s", err)
+	}
+
+	list := TweetList{}
+	if err := list.Load(tempFile.Name()); err != nil {
+		t.Errorf("Not expecting an error. Result: %q", err)
+	}
 }
