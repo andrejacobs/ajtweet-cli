@@ -23,8 +23,14 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	scheduledAtFlag string
 )
 
 // addCmd represents the add command
@@ -32,21 +38,27 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a new tweet to be sent to twitter",
 	Long:  `TODO: Longer description for the add command`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
+
+		if scheduledAtFlag == "" {
+			scheduledAtFlag = time.Now().Format(time.RFC3339)
+		}
+
+		if err := application.Add(args[0], scheduledAtFlag); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to add tweet. Error: %s", err)
+			os.Exit(1)
+		}
+
+		if err := application.Save(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s", err)
+			os.Exit(2)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	addCmd.Flags().StringVarP(&scheduledAtFlag, "scheduledAt", "t", "", "Scheduled date time according to RFC3339 standard")
 }

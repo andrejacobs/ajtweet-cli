@@ -25,12 +25,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/andrejacobs/ajtweet-cli/app"
 	"github.com/andrejacobs/ajtweet-cli/internal/buildinfo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+
+var application app.Application
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -76,16 +79,37 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".ajtweet" (without extension).
+		// Search for a config file with base name ".ajtweet" (extension will determine the type of format used, e.g. yaml)
+		// starting at the current working directory
+		viper.AddConfigPath(".")
+		// then check the %HOME directory
 		viper.AddConfigPath(home)
+		// finally check in /etc/ajtweet
+		viper.AddConfigPath(fmt.Sprintf("/etc/%s/", rootCmd.Name()))
+
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".ajtweet")
+
+		//NOTE: Viper supports the following formats: JSON, TOML, YAML, HCL (HashiCorp), INI, envfile or Java properties
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading config file: %s. Error: %s", viper.ConfigFileUsed(), err)
+	}
+
+	initApplication()
+}
+
+func initApplication() {
+	var appConfig app.Config
+	if err := viper.Unmarshal(&appConfig); err != nil {
+		fmt.Fprintf(os.Stderr, "Error parsing the configuration: %s", err)
+	}
+
+	if err := application.Configure(appConfig); err != nil {
+		fmt.Fprintf(os.Stderr, "Error configuring the application: %s", err)
 	}
 }
