@@ -97,7 +97,8 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading config file: %s. Error: %s", viper.ConfigFileUsed(), err)
+		fmt.Fprintf(os.Stderr, "Error reading config file: %s. Error: %s\n", viper.ConfigFileUsed(), err)
+		os.Exit(1)
 	}
 
 	initApplication()
@@ -107,9 +108,15 @@ func initApplication() {
 	var appConfig app.Config
 	if err := viper.Unmarshal(&appConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing the configuration: %s", err)
+		os.Exit(1)
+	}
+
+	if appConfig.Datastore.Filepath == "" {
+		appConfig.Datastore.Filepath = "./ajtweets-data.json"
 	}
 
 	if err := application.Configure(appConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "Error configuring the application: %s", err)
+		os.Exit(1)
 	}
 }

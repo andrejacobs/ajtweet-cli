@@ -46,12 +46,12 @@ var addCmd = &cobra.Command{
 		}
 
 		if err := application.Add(args[0], scheduledAtFlag); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to add tweet. Error: %s", err)
+			fmt.Fprintf(os.Stderr, "Failed to add tweet. Error: %s\n", err)
 			os.Exit(1)
 		}
 
 		if err := application.Save(); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s", err)
+			fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s\n", err)
 			os.Exit(2)
 		}
 	},
