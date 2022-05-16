@@ -19,15 +19,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+// buildinfo is an internal package used to build time information to the compiled app.
 package buildinfo
 
 import "fmt"
 
 var (
-	GitCommitHash string
-	Version       string
+	GitCommitHash string // The hash of the last commit in the git repository
+	Version       string // The version of the app
 )
 
+// Return the version information that can be shown to a user.
 func VersionString() string {
 	version := "v0.0.0"
 	if Version != "" {

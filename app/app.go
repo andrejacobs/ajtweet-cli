@@ -19,6 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+// app package provides the core interface for ajtweet.
+// It is used in decoupling from the CLI and thus makes it easier to unit-test.
 package app
 
 import (
@@ -27,11 +30,13 @@ import (
 	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
 )
 
+// The main "context" used in the application.
 type Application struct {
 	config Config
 	tweets tweet.TweetList
 }
 
+// Configure and load any exsiting tweets to be used by the Application.
 func (app *Application) Configure(config Config) error {
 	app.config = config
 
@@ -41,6 +46,7 @@ func (app *Application) Configure(config Config) error {
 	return nil
 }
 
+// Save any changes made by the Application.
 func (app *Application) Save() error {
 	//AJ### TODO: Need to make the save atomic so that we corrupt good data
 	if err := app.tweets.Save(app.config.Datastore.Filepath); err != nil {
@@ -49,6 +55,8 @@ func (app *Application) Save() error {
 	return nil
 }
 
+// Add a new scheduled tweet to the Application.
+// The scheduledTimeString must be in the RFC 3339 standard, e.g. 2006-03-05T10:42:01Z
 func (app *Application) Add(message string, scheduledTimeString string) error {
 	scheduledTime, err := parseTime(scheduledTimeString)
 	if err != nil {

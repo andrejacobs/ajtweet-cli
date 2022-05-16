@@ -19,12 +19,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
 package app
 
+// Configuration data used by the Application.
 type Config struct {
 	Datastore Datastore
 }
 
+// Datastore configures how the tweets are stored by the Application.
 type Datastore struct {
-	Filepath string
+	Filepath string // File path of where the tweets should be stored.
 }

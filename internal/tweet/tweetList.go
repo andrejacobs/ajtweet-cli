@@ -19,6 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
 package tweet
 
 import (
@@ -31,14 +32,19 @@ import (
 )
 
 var (
+	// The tweet has already been added to the list.
 	ErrExists = errors.New("Tweet already exists in the list")
 	// ErrNotExists = errors.New("Tweet does not exist in the list")
 )
 
+// TweetList manages a collection of Tweets.
 type TweetList struct {
 	Tweets []Tweet
 }
 
+// Check if a tweet with the specified identifier can be found in the list.
+// If the tweet can be found then true and the index of the tweet will be returned.
+// If the tweet can not be found then false and -1 will be returned.
 func (list *TweetList) Find(id uuid.UUID) (bool, int) {
 	for i, tweet := range list.Tweets {
 		if tweet.Id == id {
@@ -49,6 +55,7 @@ func (list *TweetList) Find(id uuid.UUID) (bool, int) {
 	return false, -1
 }
 
+// Add a new tweet to the list.
 func (list *TweetList) Add(tweet Tweet) error {
 	if found, _ := list.Find(tweet.Id); found {
 		return fmt.Errorf("%w: %q", ErrExists, tweet.Id)
@@ -58,6 +65,7 @@ func (list *TweetList) Add(tweet Tweet) error {
 	return nil
 }
 
+// Load the list of tweets from a JSON encoded file at the specified filePath.
 func (list *TweetList) Load(filePath string) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -74,6 +82,7 @@ func (list *TweetList) Load(filePath string) error {
 	return json.Unmarshal(data, list)
 }
 
+// Save the list of tweets to a JSON encoded file at the specified filePath.
 func (list *TweetList) Save(filePath string) error {
 	jsonData, err := json.Marshal(list)
 	if err != nil {

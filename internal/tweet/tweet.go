@@ -19,6 +19,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+
+// tweet is an internal package to provide the core functionality required by ajtweet.
 package tweet
 
 import (
@@ -28,12 +30,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// Tweet represents a single scheduled tweet to be sent to Twitter.
 type Tweet struct {
-	Id            uuid.UUID
-	Message       string
-	ScheduledTime time.Time
+	Id            uuid.UUID // The unique identifier for the tweet.
+	Message       string    // The message to be posted to twitter.
+	ScheduledTime time.Time // The preferred scheduled time at which the tweet needs to be sent.
 }
 
+// Create a new Tweet given the specified message and preferred scheduled time.
 func New(message string, scheduledTime time.Time) Tweet {
 	tweet := Tweet{
 		Id:            uuid.New(),
@@ -43,11 +47,12 @@ func New(message string, scheduledTime time.Time) Tweet {
 	return tweet
 }
 
+// Return true if the tweet needs to be sent as soon as possible.
 func (tweet Tweet) SendNow() bool {
 	return tweet.ScheduledTime.Before(time.Now())
 }
 
-// Stringer implementation
+// Stringer implementation.
 func (tweet Tweet) String() string {
 	return fmt.Sprintf("id: %s, time: %s, tweet: %s", tweet.Id, tweet.ScheduledTime, tweet.Message)
 }
