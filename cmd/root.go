@@ -42,14 +42,27 @@ var rootCmd = &cobra.Command{
 	Use:     "ajtweet",
 	Version: buildinfo.VersionString(),
 	Short:   "Schedule tweets to be sent to Twitter",
-	Long: `TODO
-	Give examples of usage
-	Mention the config file etc
+	Long: `Schedule tweets to be sent to Twitter.
+
+Tweets are scheduled using the "ajtweet add" command and will be sent
+according to the preferred schedule when "ajtweet send" command is run.
+
+Configuration:
+ajtweet will look for a configuration file named ".ajtweet" and a 
+supported extension (.yaml, .toml, .ini) in the following directories
+(in this specified order):
+    ./             Current working directory
+    $HOME/         User's home directory
+    /etc/ajtweet
+
+For example: The configuration file $HOME/.ajtweet.ini will be found and use
+before the file /etc/ajtweet/.ajtweet.yaml
+
+--config path
+	Can be used to explicitly specify the configuration file to be used.
+
+TODO: Need to document the available config values. Maybe have a command to generate an example.
 	`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) {
-	// },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -85,7 +98,7 @@ func initConfig() {
 		// Search for a config file with base name ".ajtweet" (extension will determine the type of format used, e.g. yaml)
 		// starting at the current working directory
 		viper.AddConfigPath(".")
-		// then check the %HOME directory
+		// then check the $HOME directory
 		viper.AddConfigPath(home)
 		// finally check in /etc/ajtweet
 		viper.AddConfigPath(fmt.Sprintf("/etc/%s/", rootCmd.Name()))

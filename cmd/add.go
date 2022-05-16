@@ -37,9 +37,29 @@ var (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a new tweet to be sent to twitter",
-	Long:  `TODO: Longer description for the add command`,
-	Args:  cobra.ExactArgs(1),
+	Short: "Add a new tweet to be sent to Twitter",
+	Long: `Add a new tweet to be sent to Twitter at a preferred scheduled time.
+
+-t, --scheduledAt specifies the preferred time in the RFC3339 format at which
+you would like the tweet to be sent at. If no time is specified then the
+current time will be used.
+NOTE: The actual time the tweet will be sent depends entirely on when the send
+command is run. Hence why this is the preferred time and not "guarenteed time".
+
+Example RFC3339 format: YYYY-MM-DDTHH:mm:ssZ, e.g. 2022-05-16T19:39Z
+	
+Tweets are stored as per the application's configuration. Please see the 
+main help section for more details (ajtweet help)
+
+Examples:
+
+ajtweet add "Please send this tweet as soon as you can"
+	Add a tweet to be sent the next time ajtweet send is run.
+
+ajtweet add --scheduledAt "2032-05-16T19:42:00Z" "Send this tweet a year from now"
+	Add a tweet to be sent at the preferred scheduled time.
+	`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if scheduledAtFlag == "" {
