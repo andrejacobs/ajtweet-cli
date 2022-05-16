@@ -61,6 +61,9 @@ func init() {
 
 	// Persistent flags that are available to every subcommand
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ajtweet.yaml)")
+
+	versionTemplate := `{{printf "%s: %s - %s\n" .Name .Short .Version}}`
+	rootCmd.SetVersionTemplate(versionTemplate)
 }
 
 // initConfig reads in config file and ENV variables if set.
