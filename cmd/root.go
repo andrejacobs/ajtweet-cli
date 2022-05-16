@@ -62,6 +62,14 @@ before the file /etc/ajtweet/.ajtweet.yaml
 	Can be used to explicitly specify the configuration file to be used.
 
 TODO: Need to document the available config values. Maybe have a command to generate an example.
+
+Examples:
+
+ajtweet add "Send this tweet asap"
+ajtweet add --scheduledAt "2022-05-23T21:22:42Z" "Send this later"
+
+date | xargs -0 ajtweet add
+	Pass the output from date as the message argument expected by add.
 	`,
 }
 
