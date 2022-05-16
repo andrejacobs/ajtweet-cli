@@ -20,13 +20,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// Schedule tweets to be sent to Twitter
-package main
+package app
 
-import (
-	"github.com/andrejacobs/ajtweet-cli/cmd"
-)
+// Configuration data used by the Application.
+type Config struct {
+	Datastore Datastore
+}
 
-func main() {
-	cmd.Execute()
+// Datastore configures how the tweets are stored by the Application.
+type Datastore struct {
+	Filepath string // File path of where the tweets should be stored.
 }
