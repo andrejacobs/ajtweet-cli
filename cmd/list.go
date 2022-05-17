@@ -23,10 +23,17 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var (
+	jsonFlag bool
+)
+
+type listFunc func(io.Writer) error
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
@@ -34,22 +41,24 @@ var listCmd = &cobra.Command{
 	Short: "Display a list of the scheduled tweets.",
 	Long:  `Display a list of the scheduled tweets that still need to be sent.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := application.List(os.Stdout); err != nil {
-			fmt.Fprint(os.Stderr, err)
+
+		var handler listFunc = application.List
+
+		if jsonFlag {
+			handler = application.ListJSON
 		}
+
+		if err := handler(os.Stdout); err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		fmt.Fprintln(os.Stdout)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().BoolVarP(&jsonFlag, "json", "j", false, "Output the list into JSON format")
 }

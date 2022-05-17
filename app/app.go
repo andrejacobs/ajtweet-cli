@@ -25,6 +25,7 @@ THE SOFTWARE.
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
@@ -94,6 +95,18 @@ func (app *Application) List(out io.Writer) error {
 		}
 	}
 
+	return nil
+}
+
+// Write the list of scheduled tweets that still need to be sent in a JSON encoding to the specified io.Writer.
+func (app *Application) ListJSON(out io.Writer) error {
+	tweets := app.tweets.List()
+	jsonData, err := json.Marshal(tweets)
+	if err != nil {
+		return err
+	}
+
+	out.Write(jsonData)
 	return nil
 }
 

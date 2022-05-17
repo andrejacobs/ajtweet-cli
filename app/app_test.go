@@ -157,3 +157,30 @@ tweet: %s
 		t.Fatalf("Expected:\n%q\n\nResult:\n%q\n", expected, result)
 	}
 }
+
+func TestListJSON(t *testing.T) {
+	app := Application{}
+
+	if err := app.Add("Tweet 1", time.Now().Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Add("Tweet 2", time.Now().Add(-5*time.Minute).Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	var buffer bytes.Buffer
+	if err := app.ListJSON(&buffer); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedTweets := app.tweets.List()
+	expected := fmt.Sprintf(`[{"id":"%s","message":"%s","scheduledTime":"%s"},{"id":"%s","message":"%s","scheduledTime":"%s"}]`,
+		expectedTweets[0].Id, expectedTweets[0].Message, expectedTweets[0].ScheduledTime.Format(time.RFC3339),
+		expectedTweets[1].Id, expectedTweets[1].Message, expectedTweets[1].ScheduledTime.Format(time.RFC3339))
+
+	result := buffer.String()
+	if result != expected {
+		t.Fatalf("Expected:\n%q\n\nResult:\n%q\n", expected, result)
+	}
+}
