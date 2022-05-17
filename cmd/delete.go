@@ -65,7 +65,7 @@ ajtweet delete --all
 				return errors.New("--all Does not expect arguments to be passed")
 			}
 		} else if argCount < 1 {
-			return errors.New("Expected identifiers to be passed as arguments")
+			return errors.New("expected identifiers to be passed as arguments")
 		}
 		return nil
 	},
