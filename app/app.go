@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
+	"github.com/fatih/color"
 )
 
 // The main "context" used in the application.
@@ -76,8 +77,12 @@ func (app *Application) Add(message string, scheduledTimeString string) error {
 // Write the list of scheduled tweets that still need to be sent to the specified io.Writer.
 func (app *Application) List(out io.Writer) error {
 
+	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
+	greenBold := color.New(color.FgGreen, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+
 	for _, tw := range app.tweets.List() {
-		if _, err := fmt.Fprintf(out, "id: %s\n", tw.Id); err != nil {
+		if _, err := fmt.Fprintf(out, "id: %s\n", cyan(tw.Id)); err != nil {
 			return err
 		}
 
@@ -86,11 +91,12 @@ func (app *Application) List(out io.Writer) error {
 		}
 
 		if tw.SendNow() {
-			if _, err := fmt.Fprint(out, " [send now!]"); err != nil {
+			if _, err := fmt.Fprintf(out, " %s", greenBold("[send now!]")); err != nil {
 				return err
 			}
 		}
-		if _, err := fmt.Fprintf(out, "\ntweet: %s\n\n", tw.Message); err != nil {
+
+		if _, err := fmt.Fprintf(out, "\ntweet: %s\n\n", whiteBold(tw.Message)); err != nil {
 			return err
 		}
 	}
