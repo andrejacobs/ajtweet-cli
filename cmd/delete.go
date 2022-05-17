@@ -22,36 +22,71 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	dryRunFlag    bool
+	deleteAllFlag bool
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Delete scheduled tweets",
+	Long: `Delete scheduled tweets
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Each argument must match a tweet identifier in the scheduled list.
+
+You may also simulate the deletion process by running the command
+in the dry run mode (-n, --dry-run).
+
+Examples:
+
+ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+	Delete two tweets with the specified identifiers.
+
+ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
+	Simulate a delete by running in dry run mode.
+`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		argCount := len(args)
+		if deleteAllFlag {
+			if argCount != 0 {
+				return errors.New("--all Does not expect arguments to be passed")
+			}
+		} else if argCount < 1 {
+			return errors.New("Expected identifiers to be passed as arguments")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
+
+		for _, idString := range args {
+			if err := application.Delete(idString); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to delete the tweet with identifier: %q. Error: %s\n", idString, err)
+				os.Exit(1)
+			}
+
+			fmt.Fprintf(os.Stdout, "Deleting tweet with identifier: %q\n", idString)
+		}
+
+		if !dryRunFlag {
+			if err := application.Save(); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s\n", err)
+				os.Exit(2)
+			}
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// deleteCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// deleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	deleteCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
+	deleteCmd.Flags().BoolVarP(&deleteAllFlag, "all", "a", false, "Delete all the scheduled tweets")
 }
