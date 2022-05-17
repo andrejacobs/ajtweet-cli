@@ -28,6 +28,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func TestAdd(t *testing.T) {
@@ -183,4 +185,37 @@ func TestListJSON(t *testing.T) {
 	if result != expected {
 		t.Fatalf("Expected:\n%q\n\nResult:\n%q\n", expected, result)
 	}
+}
+
+func TestDelete(t *testing.T) {
+	app := Application{}
+
+	if err := app.Add("Tweet 1", time.Now().Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Add("Tweet 2", time.Now().Add(-5*time.Minute).Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Delete(app.tweets.Tweets[0].Id.String()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Delete(app.tweets.Tweets[0].Id.String()); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(app.tweets.Tweets) != 0 {
+		t.Fatal("Expected all tweets to have been deleted")
+	}
+
+	if err := app.Delete("NOT VALID UUID"); err == nil {
+		t.Fatal("Expected an UUID error to be raised")
+	}
+
+	if err := app.Delete(uuid.NewString()); err == nil {
+		t.Fatal("Expected an error since the item does not exist in the list")
+	}
+
 }

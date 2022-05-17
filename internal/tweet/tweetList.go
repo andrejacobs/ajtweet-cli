@@ -34,8 +34,8 @@ import (
 
 var (
 	// The tweet has already been added to the list.
-	ErrExists = errors.New("Tweet already exists in the list")
-	// ErrNotExists = errors.New("Tweet does not exist in the list")
+	ErrExists    = errors.New("Tweet already exists in the list")
+	ErrNotExists = errors.New("Tweet does not exist in the list")
 )
 
 // TweetList manages a collection of Tweets.
@@ -63,6 +63,19 @@ func (list *TweetList) Add(tweet Tweet) error {
 	}
 
 	list.Tweets = append(list.Tweets, tweet)
+	return nil
+}
+
+// Delete the tweet matching the specified identifier.
+// If the tweet could not be found then an error will be returned.
+func (list *TweetList) Delete(id uuid.UUID) error {
+	found, index := list.Find(id)
+	if !found {
+		return fmt.Errorf("%w: %q", ErrNotExists, id)
+	}
+
+	list.Tweets = append(list.Tweets[:index], list.Tweets[index+1:]...)
+
 	return nil
 }
 
