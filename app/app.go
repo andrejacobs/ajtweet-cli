@@ -25,9 +25,13 @@ THE SOFTWARE.
 package app
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
+	"github.com/fatih/color"
 )
 
 // The main "context" used in the application.
@@ -67,6 +71,48 @@ func (app *Application) Add(message string, scheduledTimeString string) error {
 	if err := app.tweets.Add(tweet); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Write the list of scheduled tweets that still need to be sent to the specified io.Writer.
+func (app *Application) List(out io.Writer) error {
+
+	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
+	greenBold := color.New(color.FgGreen, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+
+	for _, tw := range app.tweets.List() {
+		if _, err := fmt.Fprintf(out, "id: %s\n", cyan(tw.Id)); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprintf(out, "time: %s", tw.ScheduledTime.Format(time.RFC3339)); err != nil {
+			return err
+		}
+
+		if tw.SendNow() {
+			if _, err := fmt.Fprintf(out, " %s", greenBold("[send now!]")); err != nil {
+				return err
+			}
+		}
+
+		if _, err := fmt.Fprintf(out, "\ntweet: %s\n\n", whiteBold(tw.Message)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Write the list of scheduled tweets that still need to be sent in a JSON encoding to the specified io.Writer.
+func (app *Application) ListJSON(out io.Writer) error {
+	tweets := app.tweets.List()
+	jsonData, err := json.Marshal(tweets)
+	if err != nil {
+		return err
+	}
+
+	out.Write(jsonData)
 	return nil
 }
 

@@ -32,9 +32,9 @@ import (
 
 // Tweet represents a single scheduled tweet to be sent to Twitter.
 type Tweet struct {
-	Id            uuid.UUID // The unique identifier for the tweet.
-	Message       string    // The message to be posted to twitter.
-	ScheduledTime time.Time // The preferred scheduled time at which the tweet needs to be sent.
+	Id            uuid.UUID `json:"id"`            // The unique identifier for the tweet.
+	Message       string    `json:"message"`       // The message to be posted to twitter.
+	ScheduledTime time.Time `json:"scheduledTime"` // The preferred scheduled time at which the tweet needs to be sent.
 }
 
 // Create a new Tweet given the specified message and preferred scheduled time.

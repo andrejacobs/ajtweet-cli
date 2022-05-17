@@ -101,6 +101,34 @@ func TestFind(t *testing.T) {
 
 }
 
+func TestListIsSorted(t *testing.T) {
+	list := TweetList{}
+	tw1 := New("Tweet1", time.Now())
+	tw2 := New("Tweet2", time.Now().Add(-5*time.Second))
+	tw3 := New("Tweet3", time.Now().Add(5*time.Second))
+	expectedOrder := []Tweet{tw2, tw1, tw3}
+
+	list.Add(tw1)
+	list.Add(tw2)
+	list.Add(tw3)
+
+	result := list.List()
+	if count := len(result); count < 3 {
+		t.Fatalf("Expected %d tweets. Result: %d", 3, count)
+	}
+	// Check the original list has not been modified
+	if list.Tweets[0].Id != tw1.Id {
+		t.Fatalf("Expected the original list to remain unchanged")
+	}
+
+	// Check expected order
+	for i, tw := range result {
+		if tw.Id != expectedOrder[i].Id {
+			t.Errorf("Expected %q. Result %q", expectedOrder[i].Message, tw.Message)
+		}
+	}
+}
+
 func TestSaveLoad(t *testing.T) {
 	l1 := TweetList{}
 	l2 := TweetList{}
