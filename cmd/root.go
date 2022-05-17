@@ -70,6 +70,12 @@ ajtweet add --scheduledAt "2022-05-23T21:22:42Z" "Send this later"
 
 date | xargs -0 ajtweet add
 	Pass the output from date as the message argument expected by add.
+
+ajtweet list
+	List all the tweets still to be send
+
+ajtweet list --json
+	List all the tweets in JSON output
 	`,
 }
 
