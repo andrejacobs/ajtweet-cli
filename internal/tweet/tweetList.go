@@ -27,6 +27,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/google/uuid"
 )
@@ -63,6 +64,18 @@ func (list *TweetList) Add(tweet Tweet) error {
 
 	list.Tweets = append(list.Tweets, tweet)
 	return nil
+}
+
+// Return a slice of tweets ordered by which tweets need to be sent first.
+func (list *TweetList) List() []Tweet {
+	result := make([]Tweet, len(list.Tweets))
+	copy(result, list.Tweets)
+
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].ScheduledTime.Before(result[j].ScheduledTime)
+	})
+
+	return result
 }
 
 // Load the list of tweets from a JSON encoded file at the specified filePath.

@@ -22,7 +22,9 @@ THE SOFTWARE.
 package app
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -110,4 +112,48 @@ func TestConfigureAndSave(t *testing.T) {
 		t.Fatal("Failed to load the tweets as expected")
 	}
 
+}
+
+func TestList(t *testing.T) {
+	app := Application{}
+
+	if err := app.Add("Tweet 1", time.Now().Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Add("Tweet 2", time.Now().Add(-5*time.Minute).Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := app.Add("Tweet 3", time.Now().Add(5*time.Minute).Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+
+	var buffer bytes.Buffer
+	if err := app.List(&buffer); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedTweets := app.tweets.List()
+	expected := fmt.Sprintf(
+		`id: %s
+time: %s [send now!]
+tweet: %s
+
+id: %s
+time: %s [send now!]
+tweet: %s
+
+id: %s
+time: %s
+tweet: %s
+
+`, expectedTweets[0].Id, expectedTweets[0].ScheduledTime.Format(time.RFC3339), expectedTweets[0].Message,
+		expectedTweets[1].Id, expectedTweets[1].ScheduledTime.Format(time.RFC3339), expectedTweets[1].Message,
+		expectedTweets[2].Id, expectedTweets[2].ScheduledTime.Format(time.RFC3339), expectedTweets[2].Message)
+
+	result := buffer.String()
+	if result != expected {
+		t.Fatalf("Expected:\n%q\n\nResult:\n%q\n", expected, result)
+	}
 }
