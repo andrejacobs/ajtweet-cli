@@ -72,11 +72,12 @@ date | xargs -0 ajtweet add
 	Pass the output from date as the message argument expected by add.
 
 ajtweet list
-	List all the tweets still to be send
-
 ajtweet list --json
-	List all the tweets in JSON output
-	`,
+
+ajtweet delete "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ajtweet delete --dry-run "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ajtweet delete --all
+`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

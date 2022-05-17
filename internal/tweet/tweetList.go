@@ -79,6 +79,12 @@ func (list *TweetList) Delete(id uuid.UUID) error {
 	return nil
 }
 
+// Delete all the tweets from the list
+func (list *TweetList) DeleteAll() error {
+	list.Tweets = nil
+	return nil
+}
+
 // Return a slice of tweets ordered by which tweets need to be sent first.
 func (list *TweetList) List() []Tweet {
 	result := make([]Tweet, len(list.Tweets))

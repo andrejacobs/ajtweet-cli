@@ -127,6 +127,11 @@ func (app *Application) Delete(idString string) error {
 	return app.tweets.Delete(id)
 }
 
+// Delete all the tweets.
+func (app *Application) DeleteAll() error {
+	return app.tweets.DeleteAll()
+}
+
 func parseTime(timeString string) (time.Time, error) {
 	return time.Parse(time.RFC3339, timeString)
 }

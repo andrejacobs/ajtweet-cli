@@ -219,3 +219,18 @@ func TestDelete(t *testing.T) {
 	}
 
 }
+
+func TestDeleteAll(t *testing.T) {
+	app := Application{}
+
+	app.Add("Tweet 1", time.Now().Format(time.RFC3339))
+	app.Add("Tweet 2", time.Now().Format(time.RFC3339))
+
+	if err := app.DeleteAll(); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(app.tweets.Tweets) != 0 {
+		t.Fatal("Expected all tweets to have been deleted")
+	}
+}

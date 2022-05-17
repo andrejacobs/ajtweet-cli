@@ -52,6 +52,9 @@ ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-8
 
 ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
 	Simulate a delete by running in dry run mode.
+
+ajtweet delete --all
+	Delete all the scheduled tweets.
 `,
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
@@ -65,14 +68,20 @@ ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-
-		for _, idString := range args {
-			if err := application.Delete(idString); err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to delete the tweet with identifier: %q. Error: %s\n", idString, err)
+		if deleteAllFlag {
+			if err := application.DeleteAll(); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to delete all the tweets. Error: %s\n", err)
 				os.Exit(1)
 			}
+		} else {
+			for _, idString := range args {
+				if err := application.Delete(idString); err != nil {
+					fmt.Fprintf(os.Stderr, "Failed to delete the tweet with identifier: %q. Error: %s\n", idString, err)
+					os.Exit(1)
+				}
 
-			fmt.Fprintf(os.Stdout, "Deleting tweet with identifier: %q\n", idString)
+				fmt.Fprintf(os.Stdout, "Deleting tweet with identifier: %q\n", idString)
+			}
 		}
 
 		if !dryRunFlag {

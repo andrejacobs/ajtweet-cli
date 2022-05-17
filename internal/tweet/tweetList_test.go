@@ -166,6 +166,25 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestDeleteAll(t *testing.T) {
+	list := TweetList{}
+	tw1 := New("Tweet1", time.Now())
+	tw2 := New("Tweet2", time.Now().Add(-5*time.Second))
+	tw3 := New("Tweet3", time.Now().Add(5*time.Second))
+
+	list.Add(tw1)
+	list.Add(tw2)
+	list.Add(tw3)
+
+	if err := list.DeleteAll(); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(list.Tweets) != 0 {
+		t.Fatal("Expected all tweets to have been deleted")
+	}
+}
+
 func TestSaveLoad(t *testing.T) {
 	l1 := TweetList{}
 	l2 := TweetList{}
