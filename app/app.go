@@ -32,6 +32,7 @@ import (
 
 	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
 	"github.com/fatih/color"
+	"github.com/google/uuid"
 )
 
 // The main "context" used in the application.
@@ -114,6 +115,21 @@ func (app *Application) ListJSON(out io.Writer) error {
 
 	out.Write(jsonData)
 	return nil
+}
+
+// Delete the tweet matching the specified identifier.
+func (app *Application) Delete(idString string) error {
+	id, err := uuid.Parse(idString)
+	if err != nil {
+		return err
+	}
+
+	return app.tweets.Delete(id)
+}
+
+// Delete all the tweets.
+func (app *Application) DeleteAll() error {
+	return app.tweets.DeleteAll()
 }
 
 func parseTime(timeString string) (time.Time, error) {

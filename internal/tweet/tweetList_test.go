@@ -129,6 +129,62 @@ func TestListIsSorted(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+	list := TweetList{}
+	tw1 := New("Tweet1", time.Now())
+	tw2 := New("Tweet2", time.Now().Add(-5*time.Second))
+	tw3 := New("Tweet3", time.Now().Add(5*time.Second))
+
+	list.Add(tw1)
+	list.Add(tw2)
+	list.Add(tw3)
+
+	if count := len(list.Tweets); count < 3 {
+		t.Fatalf("Expected %d tweets. Result: %d", 3, count)
+	}
+
+	if err := list.Delete(tw1.Id); err != nil {
+		t.Fatal(err)
+	}
+	if err := list.Delete(tw3.Id); err != nil {
+		t.Fatal(err)
+	}
+	if count := len(list.Tweets); count < 1 {
+		t.Fatalf("Expected %d tweet. Result: %d", 1, count)
+	}
+
+	if err := list.Delete(tw2.Id); err != nil {
+		t.Fatal(err)
+	}
+	if count := len(list.Tweets); count != 0 {
+		t.Fatalf("Expected %d tweet. Result: %d", 0, count)
+	}
+
+	expectedErr := fmt.Errorf("%w: %q", ErrNotExists, tw1.Id)
+	if err := list.Delete(tw1.Id); errors.Is(err, expectedErr) {
+		t.Fatalf("Expected an error of type ErrNotExists, instead result is: %s", err)
+	}
+}
+
+func TestDeleteAll(t *testing.T) {
+	list := TweetList{}
+	tw1 := New("Tweet1", time.Now())
+	tw2 := New("Tweet2", time.Now().Add(-5*time.Second))
+	tw3 := New("Tweet3", time.Now().Add(5*time.Second))
+
+	list.Add(tw1)
+	list.Add(tw2)
+	list.Add(tw3)
+
+	if err := list.DeleteAll(); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(list.Tweets) != 0 {
+		t.Fatal("Expected all tweets to have been deleted")
+	}
+}
+
 func TestSaveLoad(t *testing.T) {
 	l1 := TweetList{}
 	l2 := TweetList{}

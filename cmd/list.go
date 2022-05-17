@@ -39,7 +39,30 @@ type listFunc func(io.Writer) error
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Display a list of the scheduled tweets.",
-	Long:  `Display a list of the scheduled tweets that still need to be sent.`,
+	Long: `Display a list of the scheduled tweets that still need to be sent.
+
+The list of tweets will be displayed using ANSI colour escape codes if the
+stdout supports colour output. For example output to the terminal will use
+colour output whereas piping to another command will not use colours.
+Colour output can also be disabled by setting the environment variable
+NO_COLOR.
+
+-j, --json Can be used to output the list into a JSON format.
+
+Examples:
+
+ajtweet list
+	List all the tweets still to be sent.
+
+ajtweet list --json
+	List all the tweets in JSON output.
+
+NO_COLOR=1 ajtweet list
+	Disable colour output while displaying the list.
+
+ajtweet list | less
+	Disable colour output and pipe the output to less.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var handler listFunc = application.List

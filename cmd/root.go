@@ -70,7 +70,14 @@ ajtweet add --scheduledAt "2022-05-23T21:22:42Z" "Send this later"
 
 date | xargs -0 ajtweet add
 	Pass the output from date as the message argument expected by add.
-	`,
+
+ajtweet list
+ajtweet list --json
+
+ajtweet delete "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ajtweet delete --dry-run "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ajtweet delete --all
+`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
