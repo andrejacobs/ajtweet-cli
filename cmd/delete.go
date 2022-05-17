@@ -24,7 +24,9 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -69,6 +71,21 @@ ajtweet delete --all
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if deleteAllFlag {
+			// Confirm with the user
+			expectedConfirm := randomString(5 + rand.Intn(5))
+			fmt.Fprintf(os.Stdout, "Please confirm by entering: %s\n> ", expectedConfirm)
+
+			var confirm string
+			if _, err := fmt.Scanln(&confirm); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to receive user confirmation. Error: %s\n", err)
+				os.Exit(1)
+			}
+
+			if confirm != expectedConfirm {
+				fmt.Fprintf(os.Stderr, "Confirmation failed\n")
+				os.Exit(1)
+			}
+
 			if err := application.DeleteAll(); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to delete all the tweets. Error: %s\n", err)
 				os.Exit(1)
@@ -98,4 +115,17 @@ func init() {
 
 	deleteCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
 	deleteCmd.Flags().BoolVarP(&deleteAllFlag, "all", "a", false, "Delete all the scheduled tweets")
+
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randomString(count int) string {
+	result := make([]rune, count)
+	letterRunesCount := len(letterRunes)
+	for i := range result {
+		result[i] = letterRunes[rand.Intn(letterRunesCount)]
+	}
+	return string(result)
 }
