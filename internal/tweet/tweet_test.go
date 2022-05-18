@@ -59,3 +59,16 @@ func TestSendNow(t *testing.T) {
 		})
 	}
 }
+
+func TestSendWhen(t *testing.T) {
+	tw1 := New("Tweet 1", time.Now())
+	tw2 := New("Tweet 2", time.Now().Add(5*time.Minute))
+
+	if !tw1.SendWhen(time.Now().Add(1 * time.Minute)) {
+		t.Fatal("Expected tweet to be sent now")
+	}
+
+	if tw2.SendWhen(time.Now().Add(1 * time.Minute)) {
+		t.Fatal("Expected tweet to NOT be sent now")
+	}
+}
