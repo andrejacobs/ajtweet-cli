@@ -25,9 +25,16 @@ package app
 // Configuration data used by the Application.
 type Config struct {
 	Datastore Datastore
+	Send      Send
 }
 
 // Datastore configures how the tweets are stored by the Application.
 type Datastore struct {
 	Filepath string // File path of where the tweets should be stored.
+}
+
+// Send parameters
+type Send struct {
+	Max   int // The maximum number of tweets to send in this call of the app.
+	Delay int // The number of seconds to delay between each sending of a tweet.
 }

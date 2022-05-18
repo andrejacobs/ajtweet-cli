@@ -25,10 +25,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
 	"github.com/google/uuid"
 )
 
@@ -232,5 +234,99 @@ func TestDeleteAll(t *testing.T) {
 
 	if len(app.tweets.Tweets) != 0 {
 		t.Fatal("Expected all tweets to have been deleted")
+	}
+}
+
+func TestSend(t *testing.T) {
+	app := Application{}
+
+	tempFile, err := os.CreateTemp("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	app.config.Datastore.Filepath = tempFile.Name()
+	app.config.Send.Max = 100
+
+	app.Add("Tweet 1", time.Now().Format(time.RFC3339))
+	app.Add("Tweet 2", time.Now().Format(time.RFC3339))
+	app.Add("Tweet 3", time.Now().Add(5*time.Minute).Format(time.RFC3339))
+
+	sendable := make([]tweet.Tweet, 2)
+	copy(sendable, app.tweets.Tweets)
+
+	var buffer bytes.Buffer
+	if err := app.Send(&buffer); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedOut := fmt.Sprintf(`Sending 1 of 2
+id: %s
+tweet: %s
+
+Sending 2 of 2
+id: %s
+tweet: %s
+
+`, sendable[0].Id, sendable[0].Message,
+		sendable[1].Id, sendable[1].Message)
+
+	if buffer.String() != expectedOut {
+		t.Fatalf("Expected output:\n%q\nResult:\n%q", expectedOut, buffer.String())
+	}
+
+	if count := len(app.tweets.Tweets); count != 1 {
+		t.Fatalf("Expected 1 tweet to remain. Result: %d", count)
+	}
+}
+
+func TestSendMaxAndEmpty(t *testing.T) {
+	app := Application{}
+
+	tempFile, err := os.CreateTemp("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	const total = 10
+	app.config.Datastore.Filepath = tempFile.Name()
+	app.config.Send.Max = total / 2
+
+	for i := 0; i < total; i++ {
+		app.Add("Tweet", time.Now().Format(time.RFC3339))
+	}
+
+	if len(app.tweets.Tweets) != total {
+		t.Fatalf("Expected %d tweets ready to be sent", total)
+	}
+
+	// Send first batch
+	if err := app.Send(io.Discard); err != nil {
+		t.Fatal(err)
+	}
+
+	if count := len(app.tweets.Tweets); count != app.config.Send.Max {
+		t.Fatalf("Expected %d tweets remaining to be sent. Result: %d", app.config.Send.Max, count)
+	}
+
+	// Send second batch
+	if err := app.Send(io.Discard); err != nil {
+		t.Fatal(err)
+	}
+
+	if count := len(app.tweets.Tweets); count != 0 {
+		t.Fatalf("Expected 0 tweets remaining to be sent. Result: %d", count)
+	}
+
+	// Send when there is nothing to send
+	var buffer bytes.Buffer
+	if err := app.Send(&buffer); err != nil {
+		t.Fatal(err)
+	}
+
+	if buffer.String() != "" {
+		t.Fatalf(`Expected "". Result: %q`, buffer.String())
 	}
 }

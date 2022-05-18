@@ -132,6 +132,42 @@ func (app *Application) DeleteAll() error {
 	return app.tweets.DeleteAll()
 }
 
+// Send any scheduled tweets.
+func (app *Application) Send(out io.Writer) error {
+	sendable := app.tweets.ToSend(app.config.Send.Max, time.Now())
+	sendCount := len(sendable)
+
+	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+
+	for i, tweet := range sendable {
+		fmt.Fprintf(out, "Sending %d of %d\n", i+1, sendCount)
+
+		if _, err := fmt.Fprintf(out, "id: %s\n", cyan(tweet.Id)); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprintf(out, "tweet: %s\n\n", whiteBold(tweet.Message)); err != nil {
+			return err
+		}
+
+		if err := app.tweets.Delete(tweet.Id); err != nil {
+			return err
+		}
+
+		if err := app.Save(); err != nil {
+			return err
+		}
+
+		if app.config.Send.Delay > 0 {
+			fmt.Fprintf(out, "Delaying for %d seconds ...", app.config.Send.Delay)
+			time.Sleep(time.Duration(app.config.Send.Delay) * time.Second)
+		}
+	}
+
+	return nil
+}
+
 func parseTime(timeString string) (time.Time, error) {
 	return time.Parse(time.RFC3339, timeString)
 }
