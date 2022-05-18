@@ -133,7 +133,7 @@ func (app *Application) DeleteAll() error {
 }
 
 // Send any scheduled tweets.
-func (app *Application) Send(out io.Writer) error {
+func (app *Application) Send(out io.Writer, dryRun bool) error {
 	sendable := app.tweets.ToSend(app.config.Send.Max, time.Now())
 	sendCount := len(sendable)
 
@@ -155,12 +155,14 @@ func (app *Application) Send(out io.Writer) error {
 			return err
 		}
 
-		if err := app.Save(); err != nil {
-			return err
+		if !dryRun {
+			if err := app.Save(); err != nil {
+				return err
+			}
 		}
 
-		if app.config.Send.Delay > 0 {
-			fmt.Fprintf(out, "Delaying for %d seconds ...", app.config.Send.Delay)
+		if (app.config.Send.Delay > 0) && (i < sendCount-1) {
+			fmt.Fprintf(out, "Delaying for %d seconds ...\n", app.config.Send.Delay)
 			time.Sleep(time.Duration(app.config.Send.Delay) * time.Second)
 		}
 	}

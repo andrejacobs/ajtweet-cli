@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	dryRunFlag    bool
-	deleteAllFlag bool
+	deleteDryRunFlag bool
+	deleteAllFlag    bool
 )
 
 // deleteCmd represents the delete command
@@ -101,7 +101,7 @@ Examples:
 			}
 		}
 
-		if !dryRunFlag {
+		if !deleteDryRunFlag {
 			if err := application.Save(); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s\n", err)
 				os.Exit(2)
@@ -113,7 +113,7 @@ Examples:
 func init() {
 	rootCmd.AddCommand(deleteCmd)
 
-	deleteCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
+	deleteCmd.Flags().BoolVarP(&deleteDryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
 	deleteCmd.Flags().BoolVarP(&deleteAllFlag, "all", "a", false, "Delete all the scheduled tweets")
 
 	rand.Seed(time.Now().UnixNano())

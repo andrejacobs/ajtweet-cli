@@ -257,7 +257,7 @@ func TestSend(t *testing.T) {
 	copy(sendable, app.tweets.Tweets)
 
 	var buffer bytes.Buffer
-	if err := app.Send(&buffer); err != nil {
+	if err := app.Send(&buffer, false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -303,7 +303,7 @@ func TestSendMaxAndEmpty(t *testing.T) {
 	}
 
 	// Send first batch
-	if err := app.Send(io.Discard); err != nil {
+	if err := app.Send(io.Discard, false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -312,7 +312,7 @@ func TestSendMaxAndEmpty(t *testing.T) {
 	}
 
 	// Send second batch
-	if err := app.Send(io.Discard); err != nil {
+	if err := app.Send(io.Discard, false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -322,7 +322,7 @@ func TestSendMaxAndEmpty(t *testing.T) {
 
 	// Send when there is nothing to send
 	var buffer bytes.Buffer
-	if err := app.Send(&buffer); err != nil {
+	if err := app.Send(&buffer, false); err != nil {
 		t.Fatal(err)
 	}
 
