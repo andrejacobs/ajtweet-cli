@@ -48,35 +48,35 @@ Tweets are scheduled using the "ajtweet add" command and will be sent
 according to the preferred schedule when "ajtweet send" command is run.
 
 Configuration:
-ajtweet will look for a configuration file named ".ajtweet" and a 
-supported extension (.yaml, .toml, .ini) in the following directories
-(in this specified order):
-    ./             Current working directory
-    $HOME/         User's home directory
-    /etc/ajtweet
+ ajtweet will look for a configuration file named ".ajtweet" and a 
+ supported extension (.yaml, .toml, .ini) in the following directories
+ (in this specified order):
+     ./             Current working directory
+     $HOME/         User's home directory
+     /etc/ajtweet
 
-For example: The configuration file $HOME/.ajtweet.ini will be found and use
-before the file /etc/ajtweet/.ajtweet.yaml
+ For example: The configuration file $HOME/.ajtweet.ini will be found and use
+ before the file /etc/ajtweet/.ajtweet.yaml
 
---config path
-	Can be used to explicitly specify the configuration file to be used.
+ --config path
+    Can be used to explicitly specify the configuration file to be used.
 
 TODO: Need to document the available config values. Maybe have a command to generate an example.
 
 Examples:
 
-ajtweet add "Send this tweet asap"
-ajtweet add --scheduledAt "2022-05-23T21:22:42Z" "Send this later"
+ ajtweet add "Send this tweet asap"
+ ajtweet add --scheduledAt "2022-05-23T21:22:42Z" "Send this later"
 
-date | xargs -0 ajtweet add
-	Pass the output from date as the message argument expected by add.
+ date | xargs -0 ajtweet add
+    Pass the output from date as the message argument expected by add.
 
-ajtweet list
-ajtweet list --json
+ ajtweet list
+ ajtweet list --json
 
-ajtweet delete "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
-ajtweet delete --dry-run "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
-ajtweet delete --all
+ ajtweet delete "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ ajtweet delete --dry-run "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+ ajtweet delete --all
 `,
 }
 

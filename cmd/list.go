@@ -51,17 +51,17 @@ NO_COLOR.
 
 Examples:
 
-ajtweet list
-	List all the tweets still to be sent.
+ ajtweet list
+    List all the tweets still to be sent.
 
-ajtweet list --json
-	List all the tweets in JSON output.
+ ajtweet list --json
+    List all the tweets in JSON output.
 
-NO_COLOR=1 ajtweet list
-	Disable colour output while displaying the list.
+ NO_COLOR=1 ajtweet list
+    Disable colour output while displaying the list.
 
-ajtweet list | less
-	Disable colour output and pipe the output to less.
+ ajtweet list | less
+    Disable colour output and pipe the output to less.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
