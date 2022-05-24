@@ -256,9 +256,30 @@ func TestSend(t *testing.T) {
 	sendable := make([]tweet.Tweet, 2)
 	copy(sendable, app.tweets.Tweets)
 
+	var configureWasCalled = false
+	var actualWasCalled = false
+
+	configure := func(out io.Writer, dryRun bool) error {
+		configureWasCalled = true
+		return nil
+	}
+
+	actual := func(out io.Writer, dryRun bool, tweet tweet.Tweet) error {
+		actualWasCalled = true
+		return nil
+	}
+
 	var buffer bytes.Buffer
-	if err := app.Send(&buffer, false); err != nil {
+	if err := app.send(&buffer, false, configure, actual); err != nil {
 		t.Fatal(err)
+	}
+
+	if !configureWasCalled {
+		t.Fatal("Expected that the configuration function was called")
+	}
+
+	if !actualWasCalled {
+		t.Fatal("Expected that the actual send function was called")
 	}
 
 	expectedOut := fmt.Sprintf(`Sending 1 of 2
@@ -302,8 +323,16 @@ func TestSendMaxAndEmpty(t *testing.T) {
 		t.Fatalf("Expected %d tweets ready to be sent", total)
 	}
 
+	configure := func(out io.Writer, dryRun bool) error {
+		return nil
+	}
+
+	actual := func(out io.Writer, dryRun bool, tweet tweet.Tweet) error {
+		return nil
+	}
+
 	// Send first batch
-	if err := app.Send(io.Discard, false); err != nil {
+	if err := app.send(io.Discard, false, configure, actual); err != nil {
 		t.Fatal(err)
 	}
 
@@ -312,7 +341,7 @@ func TestSendMaxAndEmpty(t *testing.T) {
 	}
 
 	// Send second batch
-	if err := app.Send(io.Discard, false); err != nil {
+	if err := app.send(io.Discard, false, configure, actual); err != nil {
 		t.Fatal(err)
 	}
 
@@ -322,11 +351,20 @@ func TestSendMaxAndEmpty(t *testing.T) {
 
 	// Send when there is nothing to send
 	var buffer bytes.Buffer
-	if err := app.Send(&buffer, false); err != nil {
+	if err := app.send(&buffer, false, configure, actual); err != nil {
 		t.Fatal(err)
 	}
 
 	if buffer.String() != "" {
 		t.Fatalf(`Expected "". Result: %q`, buffer.String())
+	}
+}
+
+func TestSendChecksForCredentials(t *testing.T) {
+	app := Application{}
+
+	var buffer bytes.Buffer
+	if err := app.Send(&buffer, false); err == nil {
+		t.Fatal("Expected that Send would raise an error because of missing authentication values")
 	}
 }

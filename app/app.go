@@ -26,6 +26,7 @@ package app
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -132,8 +133,50 @@ func (app *Application) DeleteAll() error {
 	return app.tweets.DeleteAll()
 }
 
+var (
+	// The tweet has already been added to the list.
+	ErrMissingAuth = errors.New("authentication parameters are missing")
+)
+
 // Send any scheduled tweets.
 func (app *Application) Send(out io.Writer, dryRun bool) error {
+	configure := func(out io.Writer, dryRun bool) error {
+		if app.config.Send.Authentication.APIKey == "" {
+			return fmt.Errorf("%w: API Key", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.APISecret == "" {
+			return fmt.Errorf("%w: API Secret", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.OAuth1.Token == "" {
+			return fmt.Errorf("%w: OAuth 1 User token", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.OAuth1.Secret == "" {
+			return fmt.Errorf("%w: OAuth 1 User secret", ErrMissingAuth)
+		}
+
+		return nil
+	}
+
+	actual := func(out io.Writer, dryRun bool, tweet tweet.Tweet) error {
+		return nil
+	}
+
+	return app.send(out, dryRun, configure, actual)
+}
+
+type sendConfigure func(out io.Writer, dryRun bool) error
+type sendActual func(out io.Writer, dryRun bool, tweet tweet.Tweet) error
+
+func (app *Application) send(out io.Writer, dryRun bool,
+	configure sendConfigure, actual sendActual) error {
+
+	if err := configure(out, dryRun); err != nil {
+		return err
+	}
+
 	sendable := app.tweets.ToSend(app.config.Send.Max, time.Now())
 	sendCount := len(sendable)
 
@@ -148,6 +191,10 @@ func (app *Application) Send(out io.Writer, dryRun bool) error {
 		}
 
 		if _, err := fmt.Fprintf(out, "tweet: %s\n\n", whiteBold(tweet.Message)); err != nil {
+			return err
+		}
+
+		if err := actual(out, dryRun, tweet); err != nil {
 			return err
 		}
 

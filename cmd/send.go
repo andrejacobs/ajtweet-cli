@@ -39,7 +39,7 @@ var sendCmd = &cobra.Command{
 	Long:  `Send the scheduled tweets to Twitter`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := application.Send(os.Stdout, sendDryRunFlag); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to send. Error: %s", err)
+			fmt.Fprintf(os.Stderr, "Failed to send. Error: %s\n", err)
 		}
 	},
 }
