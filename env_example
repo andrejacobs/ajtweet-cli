@@ -1,0 +1,8 @@
+#!/bin/bash
+# usage: source .env
+export AJTWEET_API_KEY=your_consumer_api_key
+export AJTWEET_API_SECRET=your_consumer_api_secret
+
+# OAuth 1.0a User token
+export AJTWEET_ACCESS_TOKEN=your_oauth_user_token
+export AJTWEET_ACCESS_SECRET=your_oauth_user_secret
