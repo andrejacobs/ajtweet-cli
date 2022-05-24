@@ -94,10 +94,15 @@ Examples:
 
  ajtweet list
  ajtweet list --json
+ NO_COLOR=1 ajtweet list
 
  ajtweet delete "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
  ajtweet delete --dry-run "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
  ajtweet delete --all
+
+ ajtweet send
+ ajtweet send --dry-run
+ NO_COLOR=1 ajtweet send
 `,
 }
 
