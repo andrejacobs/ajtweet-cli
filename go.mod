@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/fatih/color v1.13.0
 	github.com/google/uuid v1.3.0
+	github.com/michimani/gotwi v0.11.2
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.11.0
 )

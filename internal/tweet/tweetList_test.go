@@ -185,6 +185,41 @@ func TestDeleteAll(t *testing.T) {
 	}
 }
 
+func TestToSend(t *testing.T) {
+	list := TweetList{}
+
+	for i := 0; i < 10; i++ {
+		if err := list.Add(New("A tweet", time.Now().Add(time.Duration(i+1)*time.Minute))); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if count := len(list.ToSend(5, time.Now())); count != 0 {
+		t.Fatalf("Expected 0 tweets. Result: %d", count)
+	}
+
+	if count := len(list.ToSend(5, time.Now().Add(5*time.Minute))); count != 5 {
+		t.Fatalf("Expected 5 tweets. Result: %d", count)
+	}
+
+	if count := len(list.ToSend(5, time.Now().Add(15*time.Minute))); count != 5 {
+		t.Fatalf("Expected 5 tweets. Result: %d", count)
+	}
+
+	if count := len(list.ToSend(100, time.Now().Add(15*time.Minute))); count != 10 {
+		t.Fatalf("Expected 10 tweets. Result: %d", count)
+	}
+
+	if count := len(list.ToSend(0, time.Now().Add(15*time.Minute))); count != 0 {
+		t.Fatalf("Expected 0 tweets. Result: %d", count)
+	}
+
+	if count := len(list.ToSend(-5, time.Now().Add(15*time.Minute))); count != 0 {
+		t.Fatal("Should not get here, but also not blow up!")
+	}
+
+}
+
 func TestSaveLoad(t *testing.T) {
 	l1 := TweetList{}
 	l2 := TweetList{}

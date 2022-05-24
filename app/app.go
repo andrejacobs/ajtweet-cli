@@ -26,6 +26,7 @@ package app
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -130,6 +131,112 @@ func (app *Application) Delete(idString string) error {
 // Delete all the tweets.
 func (app *Application) DeleteAll() error {
 	return app.tweets.DeleteAll()
+}
+
+var (
+	// The tweet has already been added to the list.
+	ErrMissingAuth = errors.New("authentication parameters are missing")
+)
+
+// Send any scheduled tweets.
+func (app *Application) Send(out io.Writer, dryRun bool) error {
+
+	var client *twitterClient
+
+	configure := func(out io.Writer, dryRun bool) error {
+		if app.config.Send.Authentication.APIKey == "" {
+			return fmt.Errorf("%w: API Key", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.APISecret == "" {
+			return fmt.Errorf("%w: API Secret", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.OAuth1.Token == "" {
+			return fmt.Errorf("%w: OAuth 1 User token", ErrMissingAuth)
+		}
+
+		if app.config.Send.Authentication.OAuth1.Secret == "" {
+			return fmt.Errorf("%w: OAuth 1 User secret", ErrMissingAuth)
+		}
+
+		var err error
+		client, err = newOAuth1Client(app.config.Send.Authentication)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	greenBold := color.New(color.FgHiGreen, color.Bold).SprintFunc()
+
+	actual := func(out io.Writer, dryRun bool, tweet tweet.Tweet) error {
+		if dryRun {
+			return nil
+		}
+
+		id, err := sendTweet(client, tweet.Message)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(out, "Twitter identifier: %s\n", greenBold(id))
+
+		return nil
+	}
+
+	return app.send(out, dryRun, configure, actual)
+}
+
+type sendConfigure func(out io.Writer, dryRun bool) error
+type sendActual func(out io.Writer, dryRun bool, tweet tweet.Tweet) error
+
+func (app *Application) send(out io.Writer, dryRun bool,
+	configure sendConfigure, actual sendActual) error {
+
+	if err := configure(out, dryRun); err != nil {
+		return err
+	}
+
+	sendable := app.tweets.ToSend(app.config.Send.Max, time.Now())
+	sendCount := len(sendable)
+
+	whiteBold := color.New(color.FgWhite, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+
+	for i, tweet := range sendable {
+		fmt.Fprintf(out, "Sending %d of %d\n", i+1, sendCount)
+
+		if _, err := fmt.Fprintf(out, "id: %s\n", cyan(tweet.Id)); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprintf(out, "tweet: %s\n\n", whiteBold(tweet.Message)); err != nil {
+			return err
+		}
+
+		if err := actual(out, dryRun, tweet); err != nil {
+			return err
+		}
+
+		if err := app.tweets.Delete(tweet.Id); err != nil {
+			return err
+		}
+
+		if !dryRun {
+			if err := app.Save(); err != nil {
+				return err
+			}
+		}
+
+		if (app.config.Send.Delay > 0) && (i < sendCount-1) {
+			fmt.Fprintf(out, "Delaying for %d seconds ...\n", app.config.Send.Delay)
+			time.Sleep(time.Duration(app.config.Send.Delay) * time.Second)
+		}
+	}
+
+	return nil
 }
 
 func parseTime(timeString string) (time.Time, error) {

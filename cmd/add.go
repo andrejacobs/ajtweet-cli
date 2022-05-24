@@ -53,11 +53,11 @@ main help section for more details (ajtweet help)
 
 Examples:
 
-ajtweet add "Please send this tweet as soon as you can"
-	Add a tweet to be sent the next time ajtweet send is run.
+ ajtweet add "Please send this tweet as soon as you can"
+    Add a tweet to be sent the next time ajtweet send is run.
 
-ajtweet add --scheduledAt "2032-05-16T19:42:00Z" "Send this tweet a year from now"
-	Add a tweet to be sent at the preferred scheduled time.
+ ajtweet add --scheduledAt "2032-05-16T19:42:00Z" "Send this tweet a year from now"
+    Add a tweet to be sent at the preferred scheduled time.
 	`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

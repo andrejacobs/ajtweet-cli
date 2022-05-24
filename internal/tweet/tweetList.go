@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -97,6 +98,29 @@ func (list *TweetList) List() []Tweet {
 	return result
 }
 
+// Return a slice of tweets that need to be send according to the specific time.
+// max Is the maximum number of tweets to return.
+// now Is the time to compare the tweet's scheduledAt time against.
+func (list *TweetList) ToSend(max int, now time.Time) []Tweet {
+	if max <= 0 {
+		return nil
+	}
+
+	sendable := list.filter(func(tweet Tweet) bool {
+		return tweet.SendWhen(now)
+	})
+
+	sort.SliceStable(sendable, func(i, j int) bool {
+		return sendable[i].ScheduledTime.Before(sendable[j].ScheduledTime)
+	})
+
+	possibleMax := min(len(sendable), max)
+	result := make([]Tweet, possibleMax)
+
+	copy(result, sendable)
+	return result
+}
+
 // Load the list of tweets from a JSON encoded file at the specified filePath.
 func (list *TweetList) Load(filePath string) error {
 	data, err := os.ReadFile(filePath)
@@ -122,4 +146,28 @@ func (list *TweetList) Save(filePath string) error {
 	}
 
 	return os.WriteFile(filePath, jsonData, 0644)
+}
+
+// This is just bonkers that you have to implement this yourself!
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// Determine if a tweet needs to be kept (true) or removed (false)
+type filterFunc func(tweet Tweet) bool
+
+// Filter the list of tweets given the filterFunc as criteria
+func (list *TweetList) filter(keep filterFunc) []Tweet {
+	result := make([]Tweet, 0, len(list.Tweets))
+
+	for _, tweet := range list.Tweets {
+		if keep(tweet) {
+			result = append(result, tweet)
+		}
+	}
+
+	return result
 }

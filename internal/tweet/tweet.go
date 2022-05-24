@@ -52,6 +52,11 @@ func (tweet Tweet) SendNow() bool {
 	return tweet.ScheduledTime.Before(time.Now())
 }
 
+// Return true if the tweet needs to be sent given the specified time.
+func (tweet Tweet) SendWhen(now time.Time) bool {
+	return tweet.ScheduledTime.Before(now)
+}
+
 // Stringer implementation.
 func (tweet Tweet) String() string {
 	return fmt.Sprintf("id: %s, time: %s, tweet: %s", tweet.Id, tweet.ScheduledTime, tweet.Message)

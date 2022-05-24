@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	dryRunFlag    bool
-	deleteAllFlag bool
+	deleteDryRunFlag bool
+	deleteAllFlag    bool
 )
 
 // deleteCmd represents the delete command
@@ -49,14 +49,14 @@ in the dry run mode (-n, --dry-run).
 
 Examples:
 
-ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
-	Delete two tweets with the specified identifiers.
+ ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+    Delete two tweets with the specified identifiers.
 
-ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
-	Simulate a delete by running in dry run mode.
+ ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
+    Simulate a delete by running in dry run mode.
 
-ajtweet delete --all
-	Delete all the scheduled tweets.
+ ajtweet delete --all
+    Delete all the scheduled tweets.
 `,
 	Args: func(cmd *cobra.Command, args []string) error {
 		argCount := len(args)
@@ -101,7 +101,7 @@ ajtweet delete --all
 			}
 		}
 
-		if !dryRunFlag {
+		if !deleteDryRunFlag {
 			if err := application.Save(); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s\n", err)
 				os.Exit(2)
@@ -113,7 +113,7 @@ ajtweet delete --all
 func init() {
 	rootCmd.AddCommand(deleteCmd)
 
-	deleteCmd.Flags().BoolVarP(&dryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
+	deleteCmd.Flags().BoolVarP(&deleteDryRunFlag, "dry-run", "n", false, "Tweets will not be deleted")
 	deleteCmd.Flags().BoolVarP(&deleteAllFlag, "all", "a", false, "Delete all the scheduled tweets")
 
 	rand.Seed(time.Now().UnixNano())
