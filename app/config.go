@@ -22,6 +22,8 @@ THE SOFTWARE.
 
 package app
 
+import "os"
+
 // Configuration data used by the Application.
 type Config struct {
 	Datastore Datastore
@@ -37,4 +39,46 @@ type Datastore struct {
 type Send struct {
 	Max   int // The maximum number of tweets to send in this call of the app.
 	Delay int // The number of seconds to delay between each sending of a tweet.
+
+	Authentication Authentication
+}
+
+// Authentication details for the Twitter API
+type Authentication struct {
+	APIKey    string `mapstructure:"api_key"`    // Consumer / API Key
+	APISecret string `mapstructure:"api_secret"` // Consumer / API Secret
+
+	OAuth1 OAuth1
+}
+
+// OAuth1.0a authentication for the Twitter API
+type OAuth1 struct {
+	Token  string // User token
+	Secret string // User token secret
+}
+
+const (
+	envAPIKey       = "AJTWEET_API_KEY"
+	envAPISecret    = "AJTWEET_API_SECRET"
+	envOAuth1Token  = "AJTWEET_ACCESS_TOKEN"
+	envOAuth1Secret = "AJTWEET_ACCESS_SECRET"
+)
+
+// Configure values from matching environment variables
+func (config *Config) PopulateFromEnv() {
+	if value, present := os.LookupEnv(envAPIKey); present {
+		config.Send.Authentication.APIKey = value
+	}
+
+	if value, present := os.LookupEnv(envAPISecret); present {
+		config.Send.Authentication.APISecret = value
+	}
+
+	if value, present := os.LookupEnv(envOAuth1Token); present {
+		config.Send.Authentication.OAuth1.Token = value
+	}
+
+	if value, present := os.LookupEnv(envOAuth1Secret); present {
+		config.Send.Authentication.OAuth1.Secret = value
+	}
 }

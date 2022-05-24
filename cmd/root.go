@@ -143,6 +143,8 @@ func initApplication() {
 		os.Exit(1)
 	}
 
+	appConfig.PopulateFromEnv()
+
 	if appConfig.Datastore.Filepath == "" {
 		appConfig.Datastore.Filepath = "./ajtweets-data.json"
 	}
