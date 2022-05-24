@@ -48,18 +48,39 @@ Tweets are scheduled using the "ajtweet add" command and will be sent
 according to the preferred schedule when "ajtweet send" command is run.
 
 Configuration:
- ajtweet will look for a configuration file named ".ajtweet" and a 
- supported extension (.yaml, .toml, .ini) in the following directories
- (in this specified order):
-     ./             Current working directory
-     $HOME/         User's home directory
-     /etc/ajtweet
+  ajtweet will look for a configuration file named ".ajtweet" and a 
+  supported extension (.yaml, .toml, .ini) in the following directories
+  (in this specified order):
+      ./             Current working directory
+      $HOME/         User's home directory
+      /etc/ajtweet
 
- For example: The configuration file $HOME/.ajtweet.ini will be found and use
- before the file /etc/ajtweet/.ajtweet.yaml
+  For example: The configuration file $HOME/.ajtweet.ini will be found and use
+  before the file /etc/ajtweet/.ajtweet.yaml
 
- --config path
+  --config path
     Can be used to explicitly specify the configuration file to be used.
+
+  Environment variables can also be used to override some of the configuration
+  values. See the Authentication section for more details.
+
+Authentication:
+  You will need to have a registered developer account with Twitter to be able
+  to access the Twitter v2 APIs.
+
+  You will need the following:
+  * Consumer API Key
+      config path: send.authentication.api_key
+	  environment: AJTWEET_API_KEY
+  * Consumer API Secret
+      config path: send.authentication.api_secret
+	  environment: AJTWEET_API_SECRET
+  * OAuth 1.0 User access token
+      config path: send.authentication.oauth1.token
+	  environment: AJTWEET_ACCESS_TOKEN
+  * OAuth 1.0 User access secret
+      config path: send.authentication.oauth1.secret
+	  environment: AJTWEET_ACCESS_SECRET
 
 TODO: Need to document the available config values. Maybe have a command to generate an example.
 
