@@ -140,6 +140,9 @@ var (
 
 // Send any scheduled tweets.
 func (app *Application) Send(out io.Writer, dryRun bool) error {
+
+	var client *twitterClient
+
 	configure := func(out io.Writer, dryRun bool) error {
 		if app.config.Send.Authentication.APIKey == "" {
 			return fmt.Errorf("%w: API Key", ErrMissingAuth)
@@ -157,10 +160,29 @@ func (app *Application) Send(out io.Writer, dryRun bool) error {
 			return fmt.Errorf("%w: OAuth 1 User secret", ErrMissingAuth)
 		}
 
+		var err error
+		client, err = newOAuth1Client(app.config.Send.Authentication)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
+	greenBold := color.New(color.FgHiGreen, color.Bold).SprintFunc()
+
 	actual := func(out io.Writer, dryRun bool, tweet tweet.Tweet) error {
+		if dryRun {
+			return nil
+		}
+
+		id, err := sendTweet(client, tweet.Message)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(out, "Twitter identifier: %s\n", greenBold(id))
+
 		return nil
 	}
 
