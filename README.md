@@ -3,7 +3,6 @@
 A command line interface to schedule tweets to be sent to Twitter.
 
 # TODO:
-- Need to set a default for the send.max value, because nothing will be sent if the user doesn't specify this value.
 - Need to implement a lock file while send is run, so that add, delete can't be used.
 
 ## Overview

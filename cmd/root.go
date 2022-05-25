@@ -163,7 +163,7 @@ func initConfig() {
 
 // Initialize the main Application "context" used by the CLI commands.
 func initApplication() {
-	var appConfig app.Config
+	appConfig := app.NewConfig()
 	if err := viper.Unmarshal(&appConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing the configuration: %s", err)
 		os.Exit(1)

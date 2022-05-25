@@ -26,6 +26,18 @@ import (
 	"testing"
 )
 
+func TestNewConfig(t *testing.T) {
+	config := NewConfig()
+
+	if config.Send.Max != defaultSendMax {
+		t.Fatalf("Expected send.max == %d. Result %d", defaultSendMax, config.Send.Max)
+	}
+
+	if config.Send.Delay != defaultSendDelay {
+		t.Fatalf("Expected send.delay == %d. Result %d", defaultSendDelay, config.Send.Delay)
+	}
+}
+
 func TestPopulateFromEnv(t *testing.T) {
 	auth := Authentication{
 		APIKey:    "a",
