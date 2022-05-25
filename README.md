@@ -1,17 +1,95 @@
 # ajtweet-cli
 
+A command line interface to schedule tweets to be sent to Twitter.
+
 # TODO:
 - Need to set a default for the send.max value, because nothing will be sent if the user doesn't specify this value.
 - Need to implement a lock file while send is run, so that add, delete can't be used.
 
 ## Overview
 
-TODO: Post my Twitter blog post and link here
-TODO: Reference the spec
+ajtweet was started out of my need for scheduling tweets without going on to Twitter while also serving as a project to learn how to build Go CLI apps.
+
+Please see my [spec](https://github.com/andrejacobs/specs/blob/main/tools/ajtweet/ajtweet%20-%20spec.md) for more insights.
+
+## Prerequisites
+
+You will need to have a registered developer account with Twitter along with the following keys, secrets and tokens:
+
+* Consumer API key and secret.
+* OAuth 1.0a User access token and secret.
+
+Please see my [blog post](TODO Post my Twitter blog post and link here) on how you can get these values.
 
 ## Install
 
 ## Configuration
+
+ajtweet requires a configuration file in order to function. Since I am using [Viper](https://github.com/spf13/viper) the configuration file can be in YAML, TOML, JSON etc. format.
+
+The app will look for a configuration file named ".ajtweet" and a supported extension (.yaml, .toml, .ini etc.) in the following directories in this specified order:
+
+      ./             Current working directory
+      $HOME/         User's home directory
+      /etc/ajtweet
+
+For example: The configuration file `$HOME/.ajtweet.ini` will be found and used before the file `/etc/ajtweet/.ajtweet.yaml`.
+
+You can also explicitly specify the configuration file to be used using the `--config` flag.
+
+Environment variables can also be used to override some of the configuration values. For example the authentication values.
+
+### Authentication
+
+You will need to have a registered developer account with Twitter to be able to access the Twitter v2 APIs.
+
+You will need the following:
+
+* Consumer API Key
+    - config path: send.authentication.api_key
+    - environment: AJTWEET_API_KEY
+
+* Consumer API Secret
+    - config path: send.authentication.api_secret
+    - environment: AJTWEET_API_SECRET
+
+* OAuth 1.0 User access token
+    - config path: send.authentication.oauth1.token
+    - environment: AJTWEET_ACCESS_TOKEN
+
+* OAuth 1.0 User access secret
+    - config path: send.authentication.oauth1.secret
+    - environment: AJTWEET_ACCESS_SECRET
+
+See the file `env_example` in this repository for an example environment file that can be sourced in your shell session to set the required authentication values before running ajtweet.
+
+        $ cp env_example .env
+        $ source .env
+        $ ajtweet send --dry-run
+
+### Example YAML configuration
+
+The following is an example YAML configuration file you can use to configure ajtweet. Name the file `.ajtweet.yaml` and store it in one of the search directories as mentioned earlier.
+
+    datastore:
+        filepath: /home/andre/ajtweet/tweets.json
+
+    send:
+        max: 100
+        delay: 5
+
+        authentication:
+            api_key: your_consumer_key_for_twitter
+            api_secret: your_consumer_secret
+
+            oauth1:
+                token: user_access_token
+                secret: user_access_secret
+
+* datastore: Specifies the file to be used for storing the schedued tweets. At the moment only a JSON file is supported. Please ensure the directories exist before running the app.
+* send.max: The maximum number of tweets to be sent during a call to the `send` command. Default value is 10.
+* send.delay: The time in seconds to wait after each tweet before sending the next one. Default value is 1 second.
+* authentication: Specify the Twitter API key and secret along with the OAuth 1.0a user access token and secret. Please note that you can use environment variables instead as mentioned in the Authentication section.
 
 ## Add tweets
 
@@ -110,7 +188,7 @@ You can also specify a delay in seconds that the app needs to wait after each tw
         tweet: Hello
 
         Delaying for 5 seconds ...
-        
+
         Sending 2 of 2
         id: f2a18d0b-1ec2-4d2a-a4ec-eeba52bb78ef
         tweet: World
@@ -120,6 +198,15 @@ You can also specify a delay in seconds that the app needs to wait after each tw
         ajtweet send --dry-run
 
 ## Schedule ajtweet
+
+## Dependencies
+
+ajtweet uses the following excellent packages:
+
+* spf13's [Cobra](https://github.com/spf13/cobra)
+* spf13's [Viper](https://github.com/spf13/viper)
+* michimani's [gotwi](https://github.com/michimani/gotwi)
+* Fatih's [color](https://github.com/fatih/color)
 
 ## License
 
