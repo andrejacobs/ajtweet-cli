@@ -72,6 +72,7 @@ Examples:
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := application.Send(os.Stdout, sendDryRunFlag); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to send. Error: %s\n", err)
+			cleanupAndExit(1)
 		}
 	},
 }

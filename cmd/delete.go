@@ -78,23 +78,23 @@ Examples:
 			var confirm string
 			if _, err := fmt.Scanln(&confirm); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to receive user confirmation. Error: %s\n", err)
-				os.Exit(1)
+				cleanupAndExit(1)
 			}
 
 			if confirm != expectedConfirm {
 				fmt.Fprintf(os.Stderr, "Confirmation failed\n")
-				os.Exit(1)
+				cleanupAndExit(1)
 			}
 
 			if err := application.DeleteAll(); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to delete all the tweets. Error: %s\n", err)
-				os.Exit(1)
+				cleanupAndExit(1)
 			}
 		} else {
 			for _, idString := range args {
 				if err := application.Delete(idString); err != nil {
 					fmt.Fprintf(os.Stderr, "Failed to delete the tweet with identifier: %q. Error: %s\n", idString, err)
-					os.Exit(1)
+					cleanupAndExit(1)
 				}
 
 				fmt.Fprintf(os.Stdout, "Deleting tweet with identifier: %q\n", idString)
@@ -104,7 +104,7 @@ Examples:
 		if !deleteDryRunFlag {
 			if err := application.Save(); err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to save the changes. Error: %s\n", err)
-				os.Exit(2)
+				cleanupAndExit(2)
 			}
 		}
 	},

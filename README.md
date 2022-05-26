@@ -2,9 +2,6 @@
 
 A command line interface to schedule tweets to be sent to Twitter.
 
-# TODO:
-- Need to implement a lock file while send is run, so that add, delete can't be used.
-
 ## Overview
 
 ajtweet was started out of my need for scheduling tweets without going on to Twitter while also serving as a project to learn how to build Go CLI apps.
@@ -73,6 +70,8 @@ The following is an example YAML configuration file you can use to configure ajt
     datastore:
         filepath: /home/andre/ajtweet/tweets.json
 
+    lockfile: /var/ajtweet/ajtweet.lock
+
     send:
         max: 100
         delay: 5
@@ -86,6 +85,7 @@ The following is an example YAML configuration file you can use to configure ajt
                 secret: user_access_secret
 
 * datastore: Specifies the file to be used for storing the schedued tweets. At the moment only a JSON file is supported. Please ensure the directories exist before running the app.
+* lockfile: The path of where the lock file will be created. The default is ./ajtweet.lock.
 * send.max: The maximum number of tweets to be sent during a call to the `send` command. Default value is 10.
 * send.delay: The time in seconds to wait after each tweet before sending the next one. Default value is 1 second.
 * authentication: Specify the Twitter API key and secret along with the OAuth 1.0a user access token and secret. Please note that you can use environment variables instead as mentioned in the Authentication section.
@@ -195,6 +195,12 @@ You can also specify a delay in seconds that the app needs to wait after each tw
 * Simulate sending all the scheduled tweets.
 
         ajtweet send --dry-run
+
+## Single allowed instance
+
+Only one instance of ajtweet is allowed to run at any one point in time. This is to ensure that only one program is making changes to the data store or sending tweets.
+
+The app uses a lock file to ensure only one instance of the program is running. The lock file's path can be specified in the configuration file. The default is `./ajtweet.lock`
 
 ## Schedule ajtweet
 

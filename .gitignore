@@ -4,6 +4,9 @@ build/
 # Secrets
 .env
 
+# Lock file
+ajtweet.lock
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
