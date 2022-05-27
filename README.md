@@ -15,7 +15,7 @@ You will need to have a registered developer account with Twitter along with the
 * Consumer API key and secret.
 * OAuth 1.0a User access token and secret.
 
-Please see my [blog post](TODO Post my Twitter blog post and link here) on how you can get these values.
+Please see my [blog post](https://andrejacobs.org/projects/send-twitter-tweets-using-go/) on how you can get these values.
 
 ## Install
 
@@ -224,6 +224,14 @@ Only one instance of ajtweet is allowed to run at any one point in time. This is
 The app uses a lock file to ensure only one instance of the program is running. The lock file's path can be specified in the configuration file. The default is `./ajtweet.lock`
 
 ## Schedule ajtweet
+
+Here is an example of using cron on macOS to run every hour. For this example `ajtweet` is installed at my $GOPATH as `ajtweet-cli` and I append STDOUT and STDERR to ~/Documents/ajtweet/cronlog.txt.
+
+        0 * * * * /Users/andre/go/bin/ajtweet-cli send >> /Users/andre/Documents/ajtweet/cronlog.txt 2>&1
+
+You might have permission problems and a message like this in the log file: "Error configuring the application: open /Users/andre/Documents/ajtweet/tweets.json: operation not permitted". This issue is because newer versions of macOS requires explicit "Full Disk Access" permission for apps. See this [guide](https://osxdaily.com/2020/04/27/fix-cron-permissions-macos-full-disk-access/) on how to give cron permission.
+
+Note: On macOS `launchd` would be a better way to schedule running programs.
 
 ## Dependencies
 
