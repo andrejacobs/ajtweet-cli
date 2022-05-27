@@ -28,6 +28,8 @@ import "os"
 type Config struct {
 	Datastore Datastore
 	Send      Send
+
+	Lockfile string // File path of where the lock file will be created.
 }
 
 // Datastore configures how the tweets are stored by the Application.
@@ -62,7 +64,20 @@ const (
 	envAPISecret    = "AJTWEET_API_SECRET"
 	envOAuth1Token  = "AJTWEET_ACCESS_TOKEN"
 	envOAuth1Secret = "AJTWEET_ACCESS_SECRET"
+
+	defaultSendMax      = 10
+	defaultSendDelay    = 1
+	defaultSendLockfile = "./ajtweet.lock"
 )
+
+// Create a new Config and set the default values required
+func NewConfig() Config {
+	var config Config
+	config.Send.Max = defaultSendMax
+	config.Send.Delay = defaultSendDelay
+	config.Lockfile = defaultSendLockfile
+	return config
+}
 
 // Configure values from matching environment variables
 func (config *Config) PopulateFromEnv() {

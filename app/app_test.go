@@ -77,17 +77,16 @@ func TestConfigureAndSave(t *testing.T) {
 	app := Application{}
 
 	// Create a temporary file and delete it so that we can use the filename
-	tempFile, err := os.CreateTemp("", "")
+	tempFile, err := getTempFilepath()
 	if err != nil {
 		t.Fatalf("Failed to create a temporary file. Error: %s", err)
 	}
-	os.Remove(tempFile.Name())
-	defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile)
 
 	// Configure the app
 	config := Config{
 		Datastore: Datastore{
-			Filepath: tempFile.Name(),
+			Filepath: tempFile,
 		},
 	}
 
@@ -240,13 +239,13 @@ func TestDeleteAll(t *testing.T) {
 func TestSend(t *testing.T) {
 	app := Application{}
 
-	tempFile, err := os.CreateTemp("", "")
+	tempFile, err := getTempFilepath()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile)
 
-	app.config.Datastore.Filepath = tempFile.Name()
+	app.config.Datastore.Filepath = tempFile
 	app.config.Send.Max = 100
 
 	app.Add("Tweet 1", time.Now().Format(time.RFC3339))
@@ -305,14 +304,14 @@ tweet: %s
 func TestSendMaxAndEmpty(t *testing.T) {
 	app := Application{}
 
-	tempFile, err := os.CreateTemp("", "")
+	tempFile, err := getTempFilepath()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tempFile.Name())
+	defer os.Remove(tempFile)
 
 	const total = 10
-	app.config.Datastore.Filepath = tempFile.Name()
+	app.config.Datastore.Filepath = tempFile
 	app.config.Send.Max = total / 2
 
 	for i := 0; i < total; i++ {
@@ -367,4 +366,52 @@ func TestSendChecksForCredentials(t *testing.T) {
 	if err := app.Send(&buffer, false); err == nil {
 		t.Fatal("Expected that Send would raise an error because of missing authentication values")
 	}
+}
+
+func TestLock(t *testing.T) {
+	config := NewConfig()
+
+	tempFile, err := getTempFilepath()
+	if err != nil {
+		t.Fatalf("Failed to create a temporary file. Error: %s", err)
+	}
+	defer os.Remove(tempFile)
+
+	config.Lockfile = tempFile
+
+	app := Application{}
+	if err := app.Configure(config); err != nil {
+		t.Fatalf("Failed to configure the app. Error: %s", err)
+	}
+
+	if app.isLocked() {
+		t.Fatal("Lock file should not have been created yet")
+	}
+
+	if err := app.AcquireLock(); err != nil {
+		t.Fatal(err)
+	}
+
+	if !app.isLocked() {
+		t.Fatal("Expected the lock file to have been created")
+	}
+
+	if err := app.ReleaseLock(); err != nil {
+		t.Fatal(err)
+	}
+
+	if app.isLocked() {
+		t.Fatal("Lock file should have been removed")
+	}
+
+}
+
+func getTempFilepath() (string, error) {
+	// Create a temporary file and delete it so that we can use the filename
+	tempFile, err := os.CreateTemp("", "")
+	if err != nil {
+		return "", err
+	}
+	os.Remove(tempFile.Name())
+	return tempFile.Name(), nil
 }

@@ -29,11 +29,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/andrejacobs/ajtweet-cli/internal/tweet"
 	"github.com/fatih/color"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrLockfileExists = errors.New("another instance is running and have acquired the lock file")
 )
 
 // The main "context" used in the application.
@@ -241,4 +246,28 @@ func (app *Application) send(out io.Writer, dryRun bool,
 
 func parseTime(timeString string) (time.Time, error) {
 	return time.Parse(time.RFC3339, timeString)
+}
+
+func (app *Application) isLocked() bool {
+	if _, err := os.Stat(app.config.Lockfile); err == nil {
+		return true
+	}
+	return false
+}
+
+func (app *Application) AcquireLock() error {
+	if app.isLocked() {
+		return fmt.Errorf("%w: %s", ErrLockfileExists, app.config.Lockfile)
+	}
+
+	pid := fmt.Sprintf("pid: %d\n", os.Getpid())
+	if err := os.WriteFile(app.config.Lockfile, []byte(pid), 0644); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (app *Application) ReleaseLock() error {
+	return os.Remove(app.config.Lockfile)
 }

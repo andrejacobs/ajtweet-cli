@@ -26,6 +26,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/andrejacobs/ajtweet-cli/app"
 	"github.com/andrejacobs/ajtweet-cli/internal/buildinfo"
@@ -34,8 +36,8 @@ import (
 )
 
 var cfgFile string
-
 var application app.Application
+var hasLock bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -82,8 +84,6 @@ Authentication:
       config path: send.authentication.oauth1.secret
 	  environment: AJTWEET_ACCESS_SECRET
 
-TODO: Need to document the available config values. Maybe have a command to generate an example.
-
 Examples:
 
  ajtweet add "Send this tweet asap"
@@ -104,6 +104,25 @@ Examples:
  ajtweet send --dry-run
  NO_COLOR=1 ajtweet send
 `,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Lock the app
+		if err := application.AcquireLock(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		hasLock = true
+
+		// Check if we are interrupted or terminated in some way, so that we can release the lock
+		signalCh := make(chan os.Signal, 1)
+		signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
+		go func() {
+			<-signalCh
+			cleanupAndExit(42)
+		}()
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		cleanup()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -112,7 +131,7 @@ Examples:
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
-		os.Exit(1)
+		cleanupAndExit(1)
 	}
 }
 
@@ -155,7 +174,7 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading config file: %s. Error: %s\n", viper.ConfigFileUsed(), err)
-		os.Exit(1)
+		cleanupAndExit(1)
 	}
 
 	initApplication()
@@ -163,10 +182,10 @@ func initConfig() {
 
 // Initialize the main Application "context" used by the CLI commands.
 func initApplication() {
-	var appConfig app.Config
+	appConfig := app.NewConfig()
 	if err := viper.Unmarshal(&appConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing the configuration: %s", err)
-		os.Exit(1)
+		cleanupAndExit(1)
 	}
 
 	appConfig.PopulateFromEnv()
@@ -177,6 +196,23 @@ func initApplication() {
 
 	if err := application.Configure(appConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "Error configuring the application: %s", err)
-		os.Exit(1)
+		cleanupAndExit(1)
+	}
+}
+
+// Sub commmands must call this instead of just os.Exit()
+func cleanupAndExit(code int) {
+	cleanup()
+	os.Exit(code)
+}
+
+func cleanup() {
+	if hasLock {
+		// Release the lock
+		if err := application.ReleaseLock(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		hasLock = false
 	}
 }

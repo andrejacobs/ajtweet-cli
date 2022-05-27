@@ -73,7 +73,7 @@ Examples:
 
 		if err := handler(os.Stdout); err != nil {
 			fmt.Fprint(os.Stderr, err)
-			os.Exit(1)
+			cleanupAndExit(1)
 		}
 
 		fmt.Fprintln(os.Stdout)
