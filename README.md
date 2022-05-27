@@ -19,6 +19,27 @@ Please see my [blog post](TODO Post my Twitter blog post and link here) on how y
 
 ## Install
 
+### Building from source
+
+* Ensure you have [Go](https://go.dev/) installed.
+
+* Clone the repository.
+
+        $ git clone git@github.com:andrejacobs/ajtweet-cli.git
+
+* Run make. This will install the dependencies, build for the current platform and run the unit-tests.
+
+        $ cd ajtweet-cli
+        $ make
+        ...
+
+        # Run the app
+        $ ./build/current/ajtweet
+
+* You can also build and install the binary into your $GOPATH/bin diretory.
+
+        $ go install
+
 ## Configuration
 
 ajtweet requires a configuration file in order to function. Since I am using [Viper](https://github.com/spf13/viper) the configuration file can be in YAML, TOML, JSON etc. format.
@@ -102,11 +123,11 @@ The preferred time is specified using the `-t` or `--scheduledAt` flag followed 
 
 * Schedule a tweet to be sent as soon as possible (i.e. next time `ajtweet send` is run).
 
-        ajtweet add "Please send this tweet as soon as you can"
+        $ ajtweet add "Please send this tweet as soon as you can"
 
 * Schedule a tweet to be sent no earlier than a specified time.
 
-        ajtweet add --scheduledAt "2032-05-16T19:42:00Z" "Send this tweet a year from now"
+        $ ajtweet add --scheduledAt "2032-05-16T19:42:00Z" "Send this tweet a year from now"
 
 ## List tweets
 
@@ -118,7 +139,7 @@ The list of tweets can also be displayed as an encoded JSON string using the `-j
 
 * Display all scheduled tweets.
 
-        ajtweet list
+        $ ajtweet list
 
         id: 8b957daf-9967-4bc2-b123-f184e0079afe
         time: 2022-05-24T20:55:07+01:00 [send now!]
@@ -130,13 +151,13 @@ The list of tweets can also be displayed as an encoded JSON string using the `-j
 
 * Display all scheduled tweets as a JSON encoding.
 
-         ajtweet list --json
+         $ ajtweet list --json
 
          [{"id":"8b957daf-9967-4bc2-b123-f184e0079afe","message":"Please send this tweet as soon as you can","scheduledTime":"2022-05-24T20:55:07+01:00"},{"id":"9896a759-77c8-434a-9759-81dccfacbb1b","message":"Hello world","scheduledTime":"2022-05-24T21:55:00Z"}]
 
 * Display all scheduled tweets while disabling colour output on STDOUT.
 
-        NO_COLOR=1 ajtweet list
+        $ NO_COLOR=1 ajtweet list
 
 ## Delete tweets
 
@@ -148,20 +169,20 @@ To delete all the scheduled tweet you can use the `-a` or `--all` flag. You will
 
 * Delete two tweets matching the specified identifiers.
 
-        ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
+        $ ajtweet delete "28cf75a1-e7b3-4401-a878-4362bdc4befe" "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
 
         Deleting tweet with identifier: "28cf75a1-e7b3-4401-a878-4362bdc4befe"
         Deleting tweet with identifier: "a2fdb340-0b61-4a89-b52e-82deae2e3aa8"
 
 * Simulate deleting a tweet using the dry-run mode.
 
-        ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
+        $ ajtweet delete --dry-run "28cf75a1-e7b3-4401-a878-4362bdc4befe"
 
         Deleting tweet with identifier: "9896a759-77c8-434a-9759-81dccfacbb1b"
 
 * Delete all the tweets.
 
-        ajtweet delete --all
+        $ ajtweet delete --all
 
         Please confirm by entering: aR1ssKS3
         >
@@ -180,7 +201,7 @@ You can also specify a delay in seconds that the app needs to wait after each tw
 
 * Send all scheduled tweets that have been scheduled to be sent before the current system time.
 
-        ajtweet send
+        $ ajtweet send
 
         Sending 1 of 2
         id: 4a5884b0-a0ca-4b4e-ab6a-e6ae43b7b8bc
@@ -194,7 +215,7 @@ You can also specify a delay in seconds that the app needs to wait after each tw
 
 * Simulate sending all the scheduled tweets.
 
-        ajtweet send --dry-run
+        $ ajtweet send --dry-run
 
 ## Single allowed instance
 

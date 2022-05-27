@@ -84,8 +84,6 @@ Authentication:
       config path: send.authentication.oauth1.secret
 	  environment: AJTWEET_ACCESS_SECRET
 
-TODO: Need to document the available config values. Maybe have a command to generate an example.
-
 Examples:
 
  ajtweet add "Send this tweet asap"
