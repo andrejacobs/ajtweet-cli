@@ -47,7 +47,7 @@ type Application struct {
 	tweets tweet.TweetList
 }
 
-// Configure and load any exsiting tweets to be used by the Application.
+// Configure and load any existing tweets to be used by the Application.
 func (app *Application) Configure(config Config) error {
 	app.config = config
 

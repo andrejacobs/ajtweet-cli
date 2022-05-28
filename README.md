@@ -1,5 +1,8 @@
 # ajtweet-cli
 
+[![Makefile CI](https://github.com/andrejacobs/ajtweet-cli/actions/workflows/makefile.yml/badge.svg)](https://github.com/andrejacobs/ajtweet-cli/actions/workflows/makefile.yml)
+![Go report card](https://goreportcard.com/badge/github.com/andrejacobs/ajtweet-cli)
+
 A command line interface to schedule tweets to be sent to Twitter.
 
 ## Overview

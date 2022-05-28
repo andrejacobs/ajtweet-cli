@@ -44,7 +44,7 @@ var addCmd = &cobra.Command{
 you would like the tweet to be sent at. If no time is specified then the
 current time will be used.
 NOTE: The actual time the tweet will be sent depends entirely on when the send
-command is run. Hence why this is the preferred time and not "guarenteed time".
+command is run. Hence why this is the preferred time and not "guaranteed time".
 
 Example RFC3339 format: YYYY-MM-DDTHH:mm:ssZ, e.g. 2022-05-16T19:39Z
 	
